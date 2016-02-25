@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="CS362">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/production/CS362/cs362.zip!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/CS362/commons-cli-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/production/CS362/commons-math3-3.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
