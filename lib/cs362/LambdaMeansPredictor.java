@@ -2,7 +2,6 @@ package cs362;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,10 +29,8 @@ public class LambdaMeansPredictor extends Predictor {
 
         for (int i = 0; i < clustering_training_iterations; i++) {
             System.out.println("Iteration::" + i);
-            HashMap<Integer, List<Instance>> clusterAndMembers = E_step(instances);
-            M_step(clusterAndMembers);
-            clusterAndMembers.clear();
-            System.gc();
+            E_step(instances);
+            M_step();
         }
     }
 
@@ -97,45 +94,35 @@ public class LambdaMeansPredictor extends Predictor {
         return norm;
     }
 
-    private HashMap<Integer, List<Instance>> E_step(List<Instance> instances) {
-        HashMap<Integer, List<Instance>> clusterAndMembers = new HashMap<>();
+    private void E_step(List<Instance> instances) {
         for (Instance instance : instances) {
-            int assignment = 0;
+            Cluster assignment = clusters.get(0);
             double minDistance = Double.MAX_VALUE;
             for (Cluster cluster : clusters) {
                 double distance = computeNorm(instance.getFeatureVector(), cluster.getPrototype());
                 if (distance < minDistance) {
-                    assignment = cluster.getId();
+                    assignment = cluster;
                     minDistance = distance;
-
                 }
             }
             if (minDistance <= cluster_lambda) {
-                if (clusterAndMembers.containsKey(assignment)) {
-                    clusterAndMembers.get(assignment).add(instance);
-                } else {
-                    List<Instance> members = new ArrayList<>();
-                    members.add(instance);
-                    clusterAndMembers.put(assignment, members);
-                }
+                assignment.getMembers().add(instance);
             } else {
                 Cluster cluster = new Cluster(clusters.size(), instance.getFeatureVector());
                 clusters.add(cluster);
-                List<Instance> members = new ArrayList<>();
-                members.add(instance);
-                clusterAndMembers.put(cluster.getId(), members);
+                cluster.getMembers().add(instance);
             }
         }
-        return clusterAndMembers;
     }
 
-    private void M_step(HashMap<Integer, List<Instance>> clusterAndMembers) {
+    private void M_step() {
         for (Cluster cluster : clusters) {
-            FeatureVector meanVector = initializePrototype(clusterAndMembers.get(cluster.getId()));
+            FeatureVector meanVector = initializePrototype(cluster.getMembers());
             cluster.setPrototype(meanVector);
+            cluster.getMembers().clear();
+            System.gc();
         }
     }
-
 }
 
 class Cluster implements Serializable {
